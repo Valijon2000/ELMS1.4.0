@@ -52,8 +52,15 @@ def create_app(config_class=Config):
     
     with app.app_context():
         db.create_all()
-        from app.models import create_demo_data, GradeScale
-        create_demo_data()
-        GradeScale.init_default_grades()
+        try:
+            from app.models import create_demo_data, GradeScale
+            create_demo_data()
+            GradeScale.init_default_grades()
+        except Exception as e:
+            # Xatolarni log qilish (production'da)
+            import sys
+            print(f"Warning: Error initializing demo data: {e}", file=sys.stderr)
+            # Xatoga qaramay ilova ishga tushishi kerak
+            pass
     
     return app

@@ -414,20 +414,27 @@ def create_demo_data():
     
     faculties = {}
     for f in faculties_data:
-        faculty = Faculty(name=f['name'], code=f['code'], description=f['description'])
-        db.session.add(faculty)
-        faculties[f['code']] = faculty
+        existing = Faculty.query.filter_by(code=f['code']).first()
+        if not existing:
+            faculty = Faculty(name=f['name'], code=f['code'], description=f['description'])
+            db.session.add(faculty)
+            faculties[f['code']] = faculty
+        else:
+            faculties[f['code']] = existing
     
     db.session.commit()
     
     # ===== ADMIN =====
-    admin = User(
-        email='admin@university.uz',
-        full_name='Tizim Administratori',
-        role='admin'
-    )
-    admin.set_password('admin123')
-    db.session.add(admin)
+    admin = User.query.filter_by(email='admin@university.uz').first()
+    if not admin:
+        admin = User(
+            email='admin@university.uz',
+            full_name='Tizim Administratori',
+            role='admin'
+        )
+        admin.set_password('admin123')
+        db.session.add(admin)
+        db.session.commit()
     
     # ===== DEKANLAR =====
     deans_data = [
@@ -437,17 +444,21 @@ def create_demo_data():
     
     deans = {}
     for d in deans_data:
-        dean = User(
-            email=d['email'],
-            full_name=d['full_name'],
-            role='dean',
-            position=d['position'],
-            faculty_id=faculties[d['faculty']].id,
-            phone='+998 90 123 45 67'
-        )
-        dean.set_password('dean123')
-        deans[d['faculty']] = dean
-        db.session.add(dean)
+        existing = User.query.filter_by(email=d['email']).first()
+        if not existing:
+            dean = User(
+                email=d['email'],
+                full_name=d['full_name'],
+                role='dean',
+                position=d['position'],
+                faculty_id=faculties[d['faculty']].id,
+                phone='+998 90 123 45 67'
+            )
+            dean.set_password('dean123')
+            db.session.add(dean)
+            deans[d['faculty']] = dean
+        else:
+            deans[d['faculty']] = existing
     
     db.session.commit()
     
@@ -462,14 +473,18 @@ def create_demo_data():
     
     groups = {}
     for g in groups_data:
-        group = Group(
-            name=g['name'],
-            faculty_id=faculties[g['faculty']].id,
-            course_year=g['course_year'],
-            education_type=g['education_type']
-        )
-        db.session.add(group)
-        groups[g['name']] = group
+        existing = Group.query.filter_by(name=g['name']).first()
+        if not existing:
+            group = Group(
+                name=g['name'],
+                faculty_id=faculties[g['faculty']].id,
+                course_year=g['course_year'],
+                education_type=g['education_type']
+            )
+            db.session.add(group)
+            groups[g['name']] = group
+        else:
+            groups[g['name']] = existing
     
     db.session.commit()
     
@@ -483,17 +498,21 @@ def create_demo_data():
     
     teachers = []
     for t in teachers_data:
-        teacher = User(
-            email=t['email'],
-            full_name=t['full_name'],
-            role='teacher',
-            department=t['department'],
-            position=t['position'],
-            phone='+998 91 234 56 78'
-        )
-        teacher.set_password('teacher123')
-        teachers.append(teacher)
-        db.session.add(teacher)
+        existing = User.query.filter_by(email=t['email']).first()
+        if not existing:
+            teacher = User(
+                email=t['email'],
+                full_name=t['full_name'],
+                role='teacher',
+                department=t['department'],
+                position=t['position'],
+                phone='+998 91 234 56 78'
+            )
+            teacher.set_password('teacher123')
+            db.session.add(teacher)
+            teachers.append(teacher)
+        else:
+            teachers.append(existing)
     
     db.session.commit()
     
@@ -509,16 +528,20 @@ def create_demo_data():
     
     subjects = {}
     for s in subjects_data:
-        subject = Subject(
-            name=s['name'],
-            code=s['code'],
-            faculty_id=faculties[s['faculty']].id,
-            credits=s['credits'],
-            semester=s['semester'],
-            description=f"{s['name']} fani bo'yicha ma'ruzalar va amaliy mashg'ulotlar"
-        )
-        db.session.add(subject)
-        subjects[s['code']] = subject
+        existing = Subject.query.filter_by(code=s['code']).first()
+        if not existing:
+            subject = Subject(
+                name=s['name'],
+                code=s['code'],
+                faculty_id=faculties[s['faculty']].id,
+                credits=s['credits'],
+                semester=s['semester'],
+                description=f"{s['name']} fani bo'yicha ma'ruzalar va amaliy mashg'ulotlar"
+            )
+            db.session.add(subject)
+            subjects[s['code']] = subject
+        else:
+            subjects[s['code']] = existing
     
     db.session.commit()
     
@@ -534,17 +557,21 @@ def create_demo_data():
     
     students = []
     for s in students_data:
-        student = User(
-            email=s['email'],
-            full_name=s['full_name'],
-            role='student',
-            student_id=s['student_id'],
-            group_id=groups[s['group']].id,
-            enrollment_year=int('20' + s['group'][-2:])
-        )
-        student.set_password('student123')
-        students.append(student)
-        db.session.add(student)
+        existing = User.query.filter_by(email=s['email']).first()
+        if not existing:
+            student = User(
+                email=s['email'],
+                full_name=s['full_name'],
+                role='student',
+                student_id=s['student_id'],
+                group_id=groups[s['group']].id,
+                enrollment_year=int('20' + s['group'][-2:])
+            )
+            student.set_password('student123')
+            db.session.add(student)
+            students.append(student)
+        else:
+            students.append(existing)
     
     db.session.commit()
     
@@ -616,24 +643,31 @@ def create_demo_data():
     
     # ===== DARS JADVALI =====
     schedule_data = [
-        {'subject': 'DA101', 'group': 'DI-23', 'teacher': teachers[0], 'day': 0, 'start': '09:00', 'end': '10:30', 'room': '301-xona', 'type': 'lecture'},
-        {'subject': 'DA101', 'group': 'DI-23', 'teacher': teachers[0], 'day': 2, 'start': '14:00', 'end': '16:00', 'room': 'Lab-1', 'type': 'lab'},
-        {'subject': 'WD201', 'group': 'DI-21', 'teacher': teachers[0], 'day': 1, 'start': '09:00', 'end': '10:30', 'room': '205-xona', 'type': 'lecture'},
-        {'subject': 'MB301', 'group': 'DI-21', 'teacher': teachers[2], 'day': 3, 'start': '11:00', 'end': '12:30', 'room': '302-xona', 'type': 'lecture'},
-        {'subject': 'AL201', 'group': 'DI-22', 'teacher': teachers[1], 'day': 1, 'start': '14:00', 'end': '15:30', 'room': '201-xona', 'type': 'lecture'},
+        {'subject': 'DA101', 'group': 'DI-23', 'teacher': teachers[0], 'day': 0, 'start': '09:00', 'end': '10:30', 'link': None, 'type': 'lecture'},
+        {'subject': 'DA101', 'group': 'DI-23', 'teacher': teachers[0], 'day': 2, 'start': '14:00', 'end': '16:00', 'link': None, 'type': 'lab'},
+        {'subject': 'WD201', 'group': 'DI-21', 'teacher': teachers[0], 'day': 1, 'start': '09:00', 'end': '10:30', 'link': None, 'type': 'lecture'},
+        {'subject': 'MB301', 'group': 'DI-21', 'teacher': teachers[2], 'day': 3, 'start': '11:00', 'end': '12:30', 'link': None, 'type': 'lecture'},
+        {'subject': 'AL201', 'group': 'DI-22', 'teacher': teachers[1], 'day': 1, 'start': '14:00', 'end': '15:30', 'link': None, 'type': 'lecture'},
     ]
     
     for s in schedule_data:
-        schedule = Schedule(
+        existing = Schedule.query.filter_by(
             subject_id=subjects[s['subject']].id,
             group_id=groups[s['group']].id,
-            teacher_id=s['teacher'].id,
             day_of_week=s['day'],
-            start_time=s['start'],
-            end_time=s['end'],
-            room=s['room'],
-            lesson_type=s['type']
-        )
-        db.session.add(schedule)
+            start_time=s['start']
+        ).first()
+        if not existing:
+            schedule = Schedule(
+                subject_id=subjects[s['subject']].id,
+                group_id=groups[s['group']].id,
+                teacher_id=s['teacher'].id,
+                day_of_week=s['day'],
+                start_time=s['start'],
+                end_time=s['end'],
+                link=s['link'],
+                lesson_type=s['type']
+            )
+            db.session.add(schedule)
     
     db.session.commit()
