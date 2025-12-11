@@ -429,16 +429,6 @@ def create_demo_data():
     admin.set_password('admin123')
     db.session.add(admin)
     
-    # ===== BUXGALTERIYA =====
-    accounting = User(
-        email='accounting@university.uz',
-        full_name='Buxgalteriya Bo\'limi',
-        role='accounting',
-        phone='+998 90 123 45 68'
-    )
-    accounting.set_password('accounting123')
-    db.session.add(accounting)
-    
     # ===== DEKANLAR =====
     deans_data = [
         {'email': 'dean.it@university.uz', 'full_name': 'Sherzod Karimov', 'faculty': 'IT', 'position': 'Dekan'},
