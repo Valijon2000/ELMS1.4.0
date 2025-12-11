@@ -255,7 +255,7 @@
                 <a href="{{ url_for('courses.assignment_detail', id=assignment.id) }}" class="flex items-center justify-between p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
                     <div>
                         <p class="text-sm font-medium text-gray-900">{{ assignment.title }}</p>
-                        <p class="text-xs text-gray-500">{{ assignment.subject.name }}</p>
+                        <p class="text-xs text-gray-500">{{ assignment.subject.name if assignment.subject else 'Fan nomi yo\'q' }}</p>
                     </div>
                     {% if assignment.due_date %}
                     <span class="px-3 py-1 text-xs font-medium rounded-full bg-amber-100 text-amber-700">
@@ -282,16 +282,16 @@
                         <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     </div>
                     <div>
-                        <p class="text-sm font-medium text-gray-900">{{ schedule.subject.name }}</p>
+                        <p class="text-sm font-medium text-gray-900">{{ schedule.subject.name if schedule.subject else 'Fan nomi yo\'q' }}</p>
                         <p class="text-xs text-gray-500">
                             {% if schedule.link %}
                             <a href="{{ schedule.link }}" target="_blank" class="text-primary-600 hover:text-primary-800 underline">Link</a> • 
                             {% endif %}
-                            {{ schedule.teacher.full_name }}
+                            {{ schedule.teacher.full_name if schedule.teacher else 'O\'qituvchi yo\'q' }}
                         </p>
                     </div>
                 </div>
-                <span class="text-sm font-semibold text-primary-600">{{ schedule.start_time.strftime('%H:%M') }}</span>
+                <span class="text-sm font-semibold text-primary-600">{{ schedule.start_time or '--:--' }}</span>
             </div>
             {% endfor %}
         </div>
