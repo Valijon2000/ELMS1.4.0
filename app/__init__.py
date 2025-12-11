@@ -50,6 +50,21 @@ def create_app(config_class=Config):
     app.register_blueprint(api.bp)
     app.register_blueprint(accounting.bp)
     
+    # Error handler qo'shish
+    @app.errorhandler(500)
+    def internal_error(error):
+        import traceback
+        import sys
+        print(f"Internal Server Error: {error}", file=sys.stderr)
+        print(traceback.format_exc(), file=sys.stderr)
+        from flask import render_template
+        return render_template('error.html', error=str(error)), 500
+    
+    @app.errorhandler(404)
+    def not_found_error(error):
+        from flask import render_template
+        return render_template('error.html', error="Sahifa topilmadi"), 404
+    
     with app.app_context():
         db.create_all()
         try:
@@ -59,7 +74,9 @@ def create_app(config_class=Config):
         except Exception as e:
             # Xatolarni log qilish (production'da)
             import sys
+            import traceback
             print(f"Warning: Error initializing demo data: {e}", file=sys.stderr)
+            print(traceback.format_exc(), file=sys.stderr)
             # Xatoga qaramay ilova ishga tushishi kerak
             pass
     

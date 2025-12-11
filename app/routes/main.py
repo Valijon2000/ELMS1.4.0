@@ -56,17 +56,23 @@ def dashboard():
     elif current_user.role == 'teacher':
         # O'qituvchiga biriktirilgan fanlar
         teaching = TeacherSubject.query.filter_by(teacher_id=current_user.id).all()
-        subjects = list(set([t.subject for t in teaching]))
-        groups = list(set([t.group for t in teaching]))
+        subjects = []
+        groups = []
+        for t in teaching:
+            if t.subject and t.subject not in subjects:
+                subjects.append(t.subject)
+            if t.group and t.group not in groups:
+                groups.append(t.group)
         
         # Baholanmagan topshiriqlar
         pending_count = 0
         for ts in teaching:
-            pending_count += Submission.query.join(Assignment).filter(
-                Assignment.subject_id == ts.subject_id,
-                Assignment.group_id == ts.group_id,
-                Submission.score == None
-            ).count()
+            if ts.subject and ts.group:
+                pending_count += Submission.query.join(Assignment).filter(
+                    Assignment.subject_id == ts.subject_id,
+                    Assignment.group_id == ts.group_id,
+                    Submission.score == None
+                ).count()
         
         context.update({
             'my_subjects': subjects,
